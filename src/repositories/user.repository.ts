@@ -3,7 +3,7 @@ import { IUser } from "../types/user.types";
 
 class UserRepository {
   public async create(data: IUser): Promise<IUser | any> {
-    return User.create(data);
+    return await User.create(data);
   }
 }
 
