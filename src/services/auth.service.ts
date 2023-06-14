@@ -22,7 +22,6 @@ class AuthService {
     user: IUser
   ): Promise<ITokenPair> {
     try {
-      user = await User.findOne({ email: credentials.email });
       const isMatched = await passwordService.compare(
         credentials.password,
         user.password
@@ -32,6 +31,7 @@ class AuthService {
       }
       const tokenPair = await tokenService.generateTokenPair({
         _id: user.id,
+        name: user.name,
       });
 
       await Token.create({
