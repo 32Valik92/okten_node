@@ -17,7 +17,7 @@ class AuthMiddleware {
         throw new ApiError("No token", 401);
       }
 
-      tokenService.checkToken(accessToken);
+      const payload = tokenService.checkToken(accessToken);
 
       const entity = await Token.findOne({ accessToken });
 
@@ -25,7 +25,7 @@ class AuthMiddleware {
         throw new ApiError("Token not valid", 401);
       }
 
-      // req.res.locals.tokenInfo = entity;
+      req.res.locals.tokenPayload = payload;
       next();
     } catch (e) {
       next(e);
