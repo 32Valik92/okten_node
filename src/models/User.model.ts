@@ -27,6 +27,10 @@ const userSchema = new Schema(
       required: true,
       // select: false,
     },
+    isActivated: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     versionKey: false,
