@@ -9,8 +9,8 @@ const userSchema = new Schema(
     },
     age: {
       type: Number,
-      min: [1, "Min value for age is 1"],
-      max: [199, "Max value for age is 1"],
+      min: [1, "Minimum value for age is 1"],
+      max: [199, "Maximum value for age is 199"],
     },
     gender: {
       type: String,
@@ -25,7 +25,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
-      // select: false,
+      select: false,
     },
     isActivated: {
       type: Boolean,
@@ -38,4 +38,4 @@ const userSchema = new Schema(
   }
 );
 
-export const User = model("users", userSchema);
+export const User = model("user", userSchema);

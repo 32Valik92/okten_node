@@ -13,7 +13,6 @@ class UserMiddleware {
     ): Promise<void> => {
       try {
         const user = await User.findOne({ [field]: req.body[field] });
-
         if (user) {
           throw new ApiError("User with this email already exist", 409);
         }
@@ -32,14 +31,14 @@ class UserMiddleware {
       next: NextFunction
     ): Promise<void> => {
       try {
-        const user = await User.findOne({ [field]: req.body[field] });
-
+        const user = await User.findOne({ [field]: req.body[field] }).select(
+          "password"
+        );
         if (!user) {
           throw new ApiError("User not found", 422);
         }
 
-        req.res.locals.user = user;
-
+        res.locals.user = user;
         next();
       } catch (e) {
         next(e);
