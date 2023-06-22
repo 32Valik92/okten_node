@@ -34,6 +34,7 @@ class UserMiddleware {
         const user = await User.findOne({ [field]: req.body[field] }).select(
           "password"
         );
+
         if (!user) {
           throw new ApiError("User not found", 422);
         }

@@ -1,5 +1,9 @@
+import { Types } from "mongoose";
+
+import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { EEmailActions } from "../enums/email.enum";
 import { ApiError } from "../errors";
+import { Action } from "../models/Action.model";
 import { OldPassword } from "../models/OldPassword.model";
 import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
@@ -87,7 +91,7 @@ class AuthService {
         })
       );
 
-      const user = await User.findById(userId).select("password");
+      const user: IUser = await User.findById(userId).select("password");
 
       const isMatched = await passwordService.compare(
         dto.oldPassword,
@@ -101,6 +105,48 @@ class AuthService {
       await Promise.all([
         OldPassword.create({ password: user.password, _userId: userId }),
         User.updateOne({ _id: userId }, { password: newHash }),
+      ]);
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async forgotPassword(
+    userId: Types.ObjectId,
+    email: string
+  ): Promise<void> {
+    try {
+      const actionToken = tokenService.generateActionToken(
+        { _id: userId },
+        EActionTokenTypes.Forgot
+      );
+
+      await Promise.all([
+        await Action.create({
+          actionToken,
+          tokenType: EActionTokenTypes.Forgot,
+          _userId: userId,
+        }),
+
+        await emailService.sendMail(email, EEmailActions.FORGOT_PASSWORD, {
+          actionToken,
+        }),
+      ]);
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async setForgotPassword(
+    password: string,
+    userId: Types.ObjectId,
+    actionToken: string
+  ): Promise<void> {
+    try {
+      const hashedPassword = await passwordService.hash(password);
+      await Promise.all([
+        User.updateOne({ _id: userId }, { password: hashedPassword }),
+        Action.deleteOne({ actionToken }),
       ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);

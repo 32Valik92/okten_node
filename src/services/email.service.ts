@@ -48,6 +48,9 @@ class EmailService {
     context: Record<string, string | number> = {}
   ) {
     const { templateName, subject } = allTemplates[emailAction];
+
+    context.frontUrl = configs.FRONT_URL;
+
     const mailOptions = {
       to: email,
       subject,
