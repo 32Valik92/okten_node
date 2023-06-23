@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 import { EActionTokenTypes } from "../enums/action-token-type.enum";
 import { EEmailActions } from "../enums/email.enum";
+import { EUserStatus } from "../enums/user.status.enum";
 import { ApiError } from "../errors";
 import { Action } from "../models/Action.model";
 import { OldPassword } from "../models/OldPassword.model";
@@ -18,10 +19,38 @@ class AuthService {
     try {
       const hashedPassword = await passwordService.hash(data.password);
 
-      await User.create({ ...data, password: hashedPassword });
-      await emailService.sendMail(data.email, EEmailActions.WELCOME, {
-        name: data.name,
-      });
+      const user = await User.create({ ...data, password: hashedPassword });
+
+      const actionToken = tokenService.generateActionToken(
+        { _id: user._id },
+        EActionTokenTypes.Activate
+      );
+
+      await Promise.all([
+        Action.create({
+          actionToken,
+          tokenType: EActionTokenTypes.Activate,
+          _userId: user._id,
+        }),
+        emailService.sendMail(data.email, EEmailActions.WELCOME, {
+          name: data.name,
+          actionToken,
+        }),
+      ]);
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async activate(jwtPayload: ITokenPayload): Promise<void> {
+    try {
+      await Promise.all([
+        User.updateOne({ _id: jwtPayload._id }, { status: EUserStatus.Active }),
+        Action.deleteMany({
+          _userId: jwtPayload._id,
+          tokenType: EActionTokenTypes.Activate,
+        }),
+      ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }

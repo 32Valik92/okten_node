@@ -18,6 +18,21 @@ class AuthController {
     }
   }
 
+  public async activate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { jwtPayload } = req.res.locals;
+      await authService.activate(jwtPayload);
+
+      return res.sendStatus(201);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   public async login(
     req: Request,
     res: Response,
