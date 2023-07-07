@@ -54,6 +54,22 @@ class UserService {
     );
   }
 
+  public async deleteAvatar(userId: string): Promise<IUser> {
+    const user = await this.getOneByIdOrThrow(userId);
+
+    if (!user.avatar) {
+      return user;
+    }
+
+    await s3Service.deleteFile(user.avatar);
+
+    return await User.findByIdAndUpdate(
+      userId,
+      { $unset: { avatar: true } },
+      { new: true }
+    );
+  }
+
   private async getOneByIdOrThrow(userId: string): Promise<IUser> {
     const user = await User.findById(userId);
     if (!user) {
