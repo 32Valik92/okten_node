@@ -1,12 +1,14 @@
 import Joi from "joi";
 
 import { regexConstants } from "../constants";
-import { EGenders } from "../enums/user.enum";
+import { EGenders } from "../enums";
 
 export class UserValidator {
+  // firstName, age, gender, email, password - це наші статичні валідатори, які ми будемо використовувати на
+  // create, update, login, changePassword, forgotPassword, setForgotPassword
   static firstName = Joi.string().min(3).max(30).trim();
   static age = Joi.number().min(1).max(199);
-  static gender = Joi.valid(...Object.values(EGenders));
+  static gender = Joi.valid(...Object.values(EGenders)); //
   static email = Joi.string()
     .regex(regexConstants.EMAIL)
     .lowercase()

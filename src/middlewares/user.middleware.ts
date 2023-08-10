@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../errors";
-import { User } from "../models/User.model";
-import { IUser } from "../types/user.types";
+import { User } from "../models";
+import { IUser } from "../types";
 
 class UserMiddleware {
+  // Метод для перевірки чи користувач з таким email створений
   public findAndThrow(field: keyof IUser) {
     return async (
       req: Request,
@@ -12,6 +13,7 @@ class UserMiddleware {
       next: NextFunction
     ): Promise<void> => {
       try {
+        // Пошук по DB
         const user = await User.findOne({ [field]: req.body[field] });
         if (user) {
           throw new ApiError("User with this email already exist", 409);
@@ -32,13 +34,14 @@ class UserMiddleware {
     ): Promise<void> => {
       try {
         const user = await User.findOne({ [field]: req.body[field] }).select(
-          "password"
+          "name password"
         );
 
         if (!user) {
           throw new ApiError("User not found", 422);
         }
 
+        // Передаємо в дане поле об'єкта нашого користувача і йдемо далі
         res.locals.user = user;
         next();
       } catch (e) {

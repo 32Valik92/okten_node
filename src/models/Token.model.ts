@@ -15,10 +15,15 @@ const tokensSchema = new Schema(
     _userId: {
       type: Types.ObjectId,
       required: true,
-      ref: User,
+      ref: User, // Посилання на користувача який створив пару tokens
     },
   },
-  { versionKey: false, timestamps: true }
+  {
+    versionKey: false, // Це поле "__v", яке показує, скільки разів даний користувач був оновлений
+    timestamps: true, // Буде показувати два додаткових поля про час створення та останнього оновлення
+  }
 );
 
+// Token - наша константа, яку ми будемо використовувати
+// model('Назва нашої модельки в DB', tokensSchema - наш шаблон, який ми описали вище)
 export const Token = model("token", tokensSchema);

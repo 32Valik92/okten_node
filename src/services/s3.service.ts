@@ -9,7 +9,7 @@ import { UploadedFile } from "express-fileupload";
 import { Readable } from "stream";
 import { v4 } from "uuid";
 
-import { configs } from "../configs/config";
+import { configs } from "../configs";
 
 class S3Service {
   constructor(

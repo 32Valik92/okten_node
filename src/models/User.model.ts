@@ -1,7 +1,6 @@
 import { model, Schema } from "mongoose";
 
-import { EGenders } from "../enums/user.enum";
-import { EUserStatus } from "../enums/user.status.enum";
+import { EGenders, EUserStatus } from "../enums";
 
 const userSchema = new Schema(
   {
@@ -39,9 +38,11 @@ const userSchema = new Schema(
     },
   },
   {
-    versionKey: false,
-    timestamps: true,
+    versionKey: false, // Це поле "__v", яке показує, скільки разів даний користувач був оновлений
+    timestamps: true, // Буде показувати два додаткових поля про час створення та останнього оновлення
   }
 );
 
+// User - наша константа, яку ми будемо використовувати
+// model('Назва нашої модельки в DB', userSchema - наш шаблон, який ми описали вище)
 export const User = model("user", userSchema);

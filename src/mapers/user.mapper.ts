@@ -1,5 +1,5 @@
-import { configs } from "../configs/config";
-import { IUser } from "../types/user.types";
+import { configs } from "../configs";
+import { IUser } from "../types";
 
 class UserMapper {
   public toResponse(user: IUser) {

@@ -5,11 +5,10 @@ import rateLimit from "express-rate-limit";
 import * as mongoose from "mongoose";
 import * as swaggerUI from "swagger-ui-express";
 
-import { configs } from "./configs/config";
+import { configs } from "./configs";
 import { cronRunner } from "./crons";
 import { ApiError } from "./errors";
-import { authRouter } from "./routers/auth.router";
-import { userRouter } from "./routers/user.router";
+import { authRouter, userRouter } from "./routers";
 import * as swaggerJson from "./untils/swagger.json";
 
 const app = express();
@@ -36,18 +35,24 @@ app.use(
   })
 );
 
+// Два наступні рядки вчать нашу app читати формат json + обробляти post запити
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(fileUpload());
 
 // CRUD - create, read, update, delete
 
+// Наші routers на різні шляхи
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/swagger", swaggerUI.serve, swaggerUI.setup(swaggerJson));
+
+// ↓ Обробник наших помилок на router
 app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
   const status = err.status || 500;
 
+  // Повертаємо на Front об'єкт вигляду ↓
   return res.status(status).json({
     message: err.message,
     status: err.status,
@@ -56,6 +61,6 @@ app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(configs.PORT, async () => {
   await mongoose.connect(configs.DB_URL);
-  cronRunner();
+  cronRunner(); // Відпрацювання наших cron, коли піднімається app.ts
   console.log(`Server has started on PORT ${configs.PORT}`);
 });

@@ -1,13 +1,13 @@
 import * as jwt from "jsonwebtoken";
 
-import { configs } from "../configs/config";
-import { EActionTokenTypes } from "../enums/action-token-type.enum";
-import { ETokenType } from "../enums/token-type.enum";
+import { configs } from "../configs";
+import { EActionTokenTypes, ETokenType } from "../enums";
 import { ApiError } from "../errors";
-import { ITokenPair, ITokenPayload } from "../types/token.types";
+import { ITokenPair, ITokenPayload } from "../types";
 
 class TokenService {
   public generateTokenPair(payload: ITokenPayload): ITokenPair {
+    // Створюємо пару tokens. expiresIn - час життя їхнього
     const accessToken = jwt.sign(payload, configs.JWT_ACCESS_SECRET, {
       expiresIn: "1d",
     });
@@ -21,10 +21,12 @@ class TokenService {
     };
   }
 
+  // Метод на перевірку самого токена чи він наш
   public checkToken(token: string, type: ETokenType): ITokenPayload {
     try {
       let secret: string;
 
+      // По якому ключі його перевіряти
       switch (type) {
         case ETokenType.Access:
           secret = configs.JWT_ACCESS_SECRET;
@@ -34,12 +36,15 @@ class TokenService {
           break;
       }
 
+      // Повертаємо payload or false для verify
       return jwt.verify(token, secret) as ITokenPayload;
     } catch (e) {
       throw new ApiError("Token not valid", 401);
     }
   }
 
+  // Метод для створення допоміжного токена для відновлення пароля
+  // Принцип той самий, що й в методі вище
   public generateActionToken(
     payload: ITokenPayload,
     tokenType: EActionTokenTypes
@@ -62,6 +67,7 @@ class TokenService {
     }
   }
 
+  // Метод подібний до checkToken, але перевіряє допоміжні токени для відновлення та активації
   public checkActionToken(
     token: string,
     tokenType: EActionTokenTypes
@@ -80,7 +86,7 @@ class TokenService {
 
       return jwt.verify(token, secret) as ITokenPayload;
     } catch (e) {
-      throw new ApiError("Token not validdddddd", 401);
+      throw new ApiError("Token not valid", 401);
     }
   }
 }

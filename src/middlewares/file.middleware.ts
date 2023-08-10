@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { avatarConfig } from "../configs/file.config";
+import { avatarConfig } from "../configs";
 import { ApiError } from "../errors";
 
 class FileMiddleware {

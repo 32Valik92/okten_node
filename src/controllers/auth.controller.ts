@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
-import { authService } from "../services/auth.service";
-import { ITokenPair, ITokenPayload } from "../types/token.types";
+import { authService } from "../services";
+import { ITokenPair, ITokenPayload } from "../types";
 
 class AuthController {
+  // Метод для реєстрації
   public async register(
     req: Request,
     res: Response,
@@ -24,6 +25,7 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
+      // Дістаємо наш payload та передаємо в сервіс
       const { jwtPayload } = req.res.locals;
       await authService.activate(jwtPayload);
 
@@ -39,6 +41,7 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<ITokenPair>> {
     try {
+      // Створюємо токен пару, де req.res.locals.user передається з user.middlewares.ts isUserExist()
       const tokensPair = await authService.login(req.body, req.res.locals.user);
 
       return res.status(200).json({
@@ -55,6 +58,7 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<ITokenPair>> {
     try {
+      // Беремо id нашого акаунта
       const { _id: userId } = req.res.locals.tokenPayload as ITokenPayload;
 
       await authService.changePassword(req.body, userId);
@@ -74,6 +78,7 @@ class AuthController {
       const oldTokenPair = req.res.locals.oldTokenPair as ITokenPair;
       const tokenPayload = req.res.locals.tokenPayload as ITokenPayload;
 
+      // Отримуємо нову пару токенів
       const tokensPair = await authService.refresh(oldTokenPair, tokenPayload);
 
       return res.status(200).json(tokensPair);
@@ -88,6 +93,7 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
+      // Дістаємо пропущеного з middleware нашого користувача
       const { user } = res.locals;
       await authService.forgotPassword(user._id, req.body.email);
 

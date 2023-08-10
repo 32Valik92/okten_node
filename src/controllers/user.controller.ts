@@ -4,58 +4,61 @@ import multer from "multer";
 import { createReadStream } from "streamifier";
 
 import { ApiError } from "../errors";
-import { userMapper } from "../mapers/user.mapper";
-import { s3Service } from "../services/s3.service";
+import { userMapper } from "../mapers";
 import {
   IPaginationResponse,
   IQuery,
+  s3Service,
   userService,
-} from "../services/user.service";
-import { IUser } from "../types/user.types";
+} from "../services";
+import { IUser } from "../types";
 
 class UserController {
+  // Метод для повернення всіх користувачів
   public async findAll(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<IPaginationResponse<IUser>>> {
     try {
+      // Беремо наших користувачів
       const users = await userService.findAllWithPagination(
         req.query as unknown as IQuery
       );
 
+      // Повертаємо наш об'єкт
       return res.json(users);
     } catch (e) {
       next(e);
     }
   }
 
+  // Метод для знаходження по _id
   public async findById(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const { userId } = req.params;
-      const user = await userService.findById(userId);
-      const response = userMapper.toResponse(user);
+      const { userId } = req.params; // Дістаємо з параметрів _id
+      const user = await userService.findById(userId); // Шукаємо по _id
+      const response = userMapper.toResponse(user); // Створюємо об'єкт для response
       return res.json(response);
     } catch (e) {
       next(e);
     }
   }
 
+  // Метод для оновлення по _id
   public async updateById(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const { userId } = req.params;
-
-      const updateUser = await userService.updateById(userId, req.body);
-
-      const response = userMapper.toResponse(updateUser);
+      const { userId } = req.params; // Дістаємо з параметрів _id
+      const updateUser = await userService.updateById(userId, req.body); // Оновлюємо
+      const response = userMapper.toResponse(updateUser); // Створюємо об'єкт для response
 
       return res.status(200).json(response);
     } catch (e) {
@@ -63,14 +66,15 @@ class UserController {
     }
   }
 
+  // Метод для видалення по _id
   public async deleteById(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const { userId } = req.params;
-      await userService.deleteById(userId);
+      const { userId } = req.params; // Дістаємо з параметрів _id
+      await userService.deleteById(userId); // Видаляємо
 
       return res.sendStatus(204);
     } catch (e) {

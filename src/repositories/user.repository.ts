@@ -1,5 +1,5 @@
-import { User } from "../models/User.model";
-import { IUser } from "../types/user.types";
+import { User } from "../models";
+import { IUser } from "../types";
 
 class UserRepository {
   public async create(data: IUser): Promise<IUser | any> {
